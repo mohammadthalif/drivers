@@ -1,4 +1,4 @@
-obj-m := in.o
+obj-m := ti.o ti2.o
 
 KERNELDIR =  /home/thalib/host/linux-source-2.6.26
 PWD:= $(shell pwd)
