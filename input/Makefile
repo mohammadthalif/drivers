@@ -8,6 +8,6 @@ default:
 
 .PHONY=clean
 clean:
-	-@rm -rf *.o *.ko Module.symvers *~ *.mod.* .*.cmd
+	-@rm -rf *.o *.ko Module.symvers *~ *.mod.* .*.cmd *.out
 	-@rm -rf .tmp_versions *.cmd  modules.order
 
