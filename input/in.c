@@ -2,7 +2,7 @@
 #include <linux/input.h>
 #include <linux/init.h>
 
-#define KBD 0
+#define SW 0
 
 MODULE_LICENSE("GPL");
 
@@ -11,7 +11,7 @@ unsigned int state;
 
 void ex_timeout(unsigned long unused)
 {
-#if KBD
+#if SW
 	int i;
 
 	for(i=0; i<=4; i++){
