@@ -44,6 +44,8 @@ int __init ti2c_init(void)
 		printk(KERN_ERR "Adding thalib i2c adapter failed: %d \n", result);
 	}
 	
+	printk(KERN_ERR "Adding thalib i2c adapter success: %d \n", result);
+
 	return result;
 
 }
