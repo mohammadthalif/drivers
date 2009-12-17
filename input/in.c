@@ -2,7 +2,8 @@
 #include <linux/input.h>
 #include <linux/init.h>
 
-#define SW 0
+#define SW 1
+#define KBD 1
 
 MODULE_LICENSE("GPL");
 
@@ -15,8 +16,8 @@ void ex_timeout(unsigned long unused)
 	int i;
 
 	for(i=0; i<=4; i++){
-		input_report_key(ex_dev, KEY_A, 1);
-		input_sync(ex_dev);
+	//	input_report_key(ex_dev, KEY_A, 1);
+	//	input_sync(ex_dev);
 		input_report_key(ex_dev, KEY_A, 0);
 	       	input_sync(ex_dev);
 	}
@@ -24,8 +25,8 @@ void ex_timeout(unsigned long unused)
 	for(i=0; i<=4; i++){
 		input_report_key(ex_dev, KEY_B, 1);
 		input_sync(ex_dev);
-		input_report_key(ex_dev, KEY_B, 0);
-		input_sync(ex_dev);
+	//	input_report_key(ex_dev, KEY_B, 0);
+	//	input_sync(ex_dev);
 	}
 
 	printk(".");
@@ -46,7 +47,7 @@ void ex_timeout(unsigned long unused)
 		
 #endif
 
-	mod_timer(&ex_dev->timer, jiffies + msecs_to_jiffies(2*10));
+	mod_timer(&ex_dev->timer, jiffies + msecs_to_jiffies(10101010101010101010*10));
 
 }
 
