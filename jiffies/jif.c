@@ -14,7 +14,7 @@ int __init jif_init(void)
 }
 
 
- void __exit jif_exit(void) */
+void __exit jif_exit(void) 
 {
 
 	

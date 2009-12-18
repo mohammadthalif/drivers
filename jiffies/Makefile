@@ -12,5 +12,5 @@ default:
 .PHONY=clean
 clean:
 	-@rm -rf *.o *.ko Module.symvers *~ *.mod.* .*.cmd
-	-@rm -rf .tmp_versions *.cmd  modules.order
+	-@rm -rf .tmp_versions *.cmd  modules.order Module.markers
 
