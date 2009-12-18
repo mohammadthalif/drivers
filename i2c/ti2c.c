@@ -3,7 +3,7 @@
 #include <linux/i2c.h>
 
 
-MODULE_AUTHOR("Mohamed Thalib H <h.thalib@gmail.com>");
+MODULE_AUTHOR("Mohamed Thalib H <hmthalib@gmail.com>");
 MODULE_DESCRIPTION("Sample I2C driver");
 MODULE_LICENSE("GPL");
 

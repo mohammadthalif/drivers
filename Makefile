@@ -1,5 +1,5 @@
 
-SUBDIRS = common  i2c  input  tasklet  timer
+SUBDIRS = common  i2c  input  tasklet  timer jiffies
 
 subdirs: clean 
 	for dir in $(SUBDIRS); do \
@@ -9,4 +9,4 @@ subdirs: clean
 .PHONY: clean
 
 clean:
-	-@rm *~
+	-@rm *~ -f

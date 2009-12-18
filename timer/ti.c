@@ -4,7 +4,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Example module on how to use timer function in linux");
-MODULE_AUTHOR("Mohamed Thalib H <h.thalib@gmail.com>");
+MODULE_AUTHOR("Mohamed Thalib H <hmthalib@gmail.com>");
 
 struct timer_list timer;
 
