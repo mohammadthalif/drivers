@@ -1,7 +1,8 @@
 obj-m := par.o
 
-KERNELDIR = /usr/src/linux-source-2.6.28/
+#KERNELDIR = /usr/src/linux-source-2.6.28/
 #KERNELDIR =  /home/thalib/host/linux-source-2.6.26
+KERNELDIR = /usr/src/linux
 
 PWD:= $(shell pwd)
 
