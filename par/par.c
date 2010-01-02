@@ -34,18 +34,21 @@ int par_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, unsigned l
 int par_open(struct inode *node, struct file *fp)
 {
 	static int tog = 0;
+	static unsigned char data = 0;
+	unsigned long port = base + (par_minor&0x0f);
 
-	printk(KERN_INFO "par: device opened, tog = %d\n", tog);
+	printk(KERN_INFO "par: device opened, tog = %d, data = %x\n", tog,data);
 
 	if (tog) {
-		outb(0x00, base);
+		outb(data, port);
 		wmb();
 	} else {
-		outb(0xFF, base);
+		outb(data, port);
 		wmb();
 	}
 
 	tog ^= 1;
+	data ^= 0xff;
 
 	return 0;
 }
