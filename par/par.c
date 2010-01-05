@@ -12,7 +12,8 @@ MODULE_DESCRIPTION("Parallel port Demo");
 
 int par_major = 200;
 int par_minor;
-unsigned long base = 0x378;
+unsigned long base = 0x0378;
+unsigned int reg_count = 1;
 static struct cdev par_dev;
 
 
@@ -33,21 +34,17 @@ int par_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, unsigned l
 
 int par_open(struct inode *node, struct file *fp)
 {
-	static int tog = 0;
 	static unsigned char data = 0;
-	unsigned long port = base + (par_minor&0x0f);
+	u8 buff;
 
-	printk(KERN_INFO "par: device opened, tog = %d, data = %x\n", tog,data);
+	barrier();
+	outb(base); 
+	buff = inb(base);
+	rmb();
 
-	if (tog) {
-		outb(data, port);
-		wmb();
-	} else {
-		outb(data, port);
-		wmb();
-	}
-
-	tog ^= 1;
+	printk(KERN_INFO "par: device opened, data = 0x%x, base=0x%x, \
+buff=%d \n", data, (unsigned int) base, buff);
+	
 	data ^= 0xff;
 
 	return 0;
@@ -75,12 +72,17 @@ int __init par_init(void)
 	dev_t dev;
 
 	printk(KERN_INFO "par: parlell port demo\n");
-		
-	if(!request_region(base, 4, "par")) {
-		printk(KERN_INFO "par: err while request_region()\n");
-		return -ENODEV;
+
+	if(!check_region(base, reg_count)){
+		printk(KERN_INFO "par: check_region failed\n");
 	}
 	
+	if(! request_region(base, reg_count, "par")) {
+		printk(KERN_INFO "par: error cant get IOmem addr 0x%1x\n", (unsigned int) base);
+		return -ENODEV;
+	}
+
+
 	dev = MKDEV(par_major, par_minor);
 
 	ret = register_chrdev_region(dev, 1, "par");
@@ -116,7 +118,7 @@ void __exit par_exit(void)
 	 printk(KERN_INFO "par: unregister_chrdev_region()\n");
 	 unregister_chrdev_region(dev, 1);
 
-	 release_region(base, 4);
+	 release_region(base, reg_count);
 }
 
 
