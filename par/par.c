@@ -14,7 +14,6 @@ MODULE_AUTHOR("Mohamed Thalib H <h.mohamedthalib@gdatech.co.in>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Parallel port Demo");
 
-<<<<<<< HEAD:par/par.c
 #define BASE 0x378
 #define NR_PORTS 1
 
