@@ -17,22 +17,21 @@ MODULE_DESCRIPTION("Parallel port Demo");
 int par_major = 200;
 int par_minor;
 
-
-
 static struct cdev par_dev;
-
 
 static ssize_t par_read(struct file *fp, char *buff, size_t len, loff_t *off)
 {
 	return 0;
 }
-static ssize_t par_write(struct file *fp, const char *buff, size_t len, loff_t *off)
+
+static ssize_t par_write(struct file *fp, const char *buff, size_t len, \
+			 loff_t *off)
 {
 	return 0;
 }
 
-
-static int par_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, unsigned long arg)
+static int par_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, \
+		     unsigned long arg)
 {
 	return 0;
 }
@@ -41,23 +40,22 @@ static int par_open(struct inode *node, struct file *fp)
 {
 	static u8 data = 0;
 	u8 i;
-	u8 buff;
 
 	for(i=1; i<=0xff; i<<=1) { 
-		barrier();
+		
 		outb(i,BASE); 
 		wmb();
-		buff = inb(BASE);
-		rmb();
 		ssleep(1);
-		printk(KERN_INFO "par: device opened, data = 0x%x, BASE=0x%x, \
-buff=%d \n", i, (unsigned int) BASE, buff);
-	
+		printk(KERN_INFO 
+		       "par: device opened,  BASE=0x%x,buff=%d \n", 
+		       i, (unsigned int) BASE);
+		
 		data ^= 0xff;
 
 		if(i == 0)
 			break;
 	}
+	
 	return 0;
 }
 
@@ -66,7 +64,6 @@ static int par_release(struct inode *inode, struct file *fp)
 	printk(KERN_INFO "par: device closed\n");
 	return 0;
 }
-
 
 static struct file_operations par_ops = {
 	.owner = THIS_MODULE,
@@ -201,6 +198,7 @@ void __exit par_exit(void)
 	 
 	pnp_unregister_driver(&par_pnp_driver);
 		
+	printk(KERN_INFO "par: module unregistered\n");
 }
 
 
