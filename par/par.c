@@ -4,34 +4,23 @@
 #include <linux/fs.h>
 #include <linux/ioport.h>
 #include <linux/pnp.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 
 #define BASE 0x378
 #define NR_COUNT 3
 
-MODULE_AUTHOR("Mohamed Thalib H <h.mohamedthalib@gdatech.co.in>");
+
+static int par_major = 200;
+static int  par_minor;
+static struct cdev par_dev;
+
+
+MODULE_AUTHOR("Mohamed Thalib H <hmthalib@gdatech.co.in>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Parallel port Demo");
 
-#define BASE 0x378
-#define NR_PORTS 1
-
-int __init pa_init(void)
-{
-	u8 buff;
-	printk(KERN_INFO "%s: loaded\n", __FUNCTION__);
-
-	if(! request_region(BASE, NR_PORTS, "par")) {
-		printk(KERN_INFO "%s: reqest region failed\n", __FUNCTION__);
-	}
-
-	buff = inb(BASE);
-	rmb();
-
-	printk(KERN_INFO "%s: buff = %d\n", __FUNCTION__, buff);
-
-static struct cdev par_dev;
 
 static ssize_t par_read(struct file *fp, char *buff, size_t len, loff_t *off)
 {
@@ -214,9 +203,6 @@ void __exit par_exit(void)
 		
 	printk(KERN_INFO "par: module unregistered\n");
 }
-
-module_init(pa_init);
-module_exit(pa_exit);
 
 module_init(par_init);
 module_exit(par_exit);
