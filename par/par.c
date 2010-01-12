@@ -14,8 +14,22 @@ MODULE_AUTHOR("Mohamed Thalib H <h.mohamedthalib@gdatech.co.in>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Parallel port Demo");
 
-int par_major = 200;
-int par_minor;
+#define BASE 0x378
+#define NR_PORTS 1
+
+int __init pa_init(void)
+{
+	u8 buff;
+	printk(KERN_INFO "%s: loaded\n", __FUNCTION__);
+
+	if(! request_region(BASE, NR_PORTS, "par")) {
+		printk(KERN_INFO "%s: reqest region failed\n", __FUNCTION__);
+	}
+
+	buff = inb(BASE);
+	rmb();
+
+	printk(KERN_INFO "%s: buff = %d\n", __FUNCTION__, buff);
 
 static struct cdev par_dev;
 
@@ -201,6 +215,8 @@ void __exit par_exit(void)
 	printk(KERN_INFO "par: module unregistered\n");
 }
 
+module_init(pa_init);
+module_exit(pa_exit);
 
 module_init(par_init);
 module_exit(par_exit);
