@@ -123,7 +123,7 @@ static int par_register(void)
 	outb(0xFF,BASE); 
 	wmb();
 
-	printk(KERN_INFO "par: device registerd\n");
+	printk(KERN_INFO "par: device registered\n");
 
 	return 0;
 
@@ -199,21 +199,28 @@ int __init par_init(void)
 #endif	
 	ret = par_register();
 	
-	if(ret) 
+	if(ret) {
 		goto error0;
+		printk("%d------------------------%d\n", __LINE__, ret);
+	}
 	
-	
-	ret = request_irq(pard.irq,par_isr , IRQF_SHARED, "par" , NULL); 
+	ret = request_irq( pard.irq, par_isr ,IRQF_SHARED, "par", NULL); 
 	
 	if( ret ) {
+		printk("-----------------------------%d\n",ret);
 		goto error1;
-		printk("%d\n",ret);
 	}
 	
 	return ret;
 
+
   error1:
-	free_irq(pard.irq, NULL);
+	
+	cdev_del(&par_dev);
+
+	unregister_chrdev_region(pard.dev, 1);
+	
+	release_region(BASE, NR_COUNT);
 
   error0:
 	pnp_unregister_driver(&par_pnp_driver);
@@ -225,7 +232,6 @@ int __init par_init(void)
 void __exit par_exit(void)
 {
 
-	dev_t dev = MKDEV(pard.major, pard.minor);
 
 	printk(KERN_INFO "par: cdev_del()\n");
 
@@ -235,7 +241,7 @@ void __exit par_exit(void)
 
 	printk(KERN_INFO "par: unregister_chrdev_region()\n");
 
-	unregister_chrdev_region(dev, 1);
+	unregister_chrdev_region(pard.dev, 1);
 
 	release_region(BASE, NR_COUNT);
 	 
