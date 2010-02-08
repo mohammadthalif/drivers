@@ -182,6 +182,7 @@ static struct pnp_driver par_pnp_driver = {
 int __init par_init(void)
 {
 	int ret;
+//	unsigned int trail[] = { 
 
 	printk(KERN_INFO "par: parlell port demo\n");
 
@@ -201,10 +202,9 @@ int __init par_init(void)
 	
 	if(ret) {
 		goto error0;
-		printk("%d------------------------%d\n", __LINE__, ret);
 	}
 	
-	ret = request_irq( pard.irq, par_isr ,IRQF_SHARED, "par", NULL); 
+	ret = request_irq(pard.irq, par_isr ,IRQF_SHARED, "par", NULL); 
 	
 	if( ret ) {
 		printk("-----------------------------%d\n",ret);
@@ -224,6 +224,8 @@ int __init par_init(void)
 
   error0:
 	pnp_unregister_driver(&par_pnp_driver);
+
+	free_irq(pard.irq, NULL);
 	
 	return ret;
 }
