@@ -18,11 +18,13 @@ struct pard_t {
 	int minor;
 	dev_t dev;
 	unsigned int irq;
+	unsigned int base;
 };
 
 struct pard_t pard = {
 	.major = 200,
 	.irq = 7,
+	.base = BASE,
 };
 
 
@@ -31,15 +33,9 @@ MODULE_AUTHOR("Mohamed Thalib H <hmthalib@gdatech.co.in>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Parallel port Demo");
 
-static irqreturn_t par_isr(int irq, void *dev_id)
-{
-	printk(KERN_INFO "ISR called\n");
-
-	return IRQ_HANDLED;
-
-}
 static ssize_t par_read(struct file *fp, char *buff, size_t len, loff_t *off)
 {
+	
 	return 0;
 }
 
@@ -60,20 +56,34 @@ static int par_open(struct inode *node, struct file *fp)
 	static u8 data = 0;
 	u8 i;
 
+	outb(0x10,BASE+2);
+	wmb();
+
+	printk(KERN_INFO "par: device opened\n");
 	for(i=1; i<=0xff; i<<=1) { 
 		
-		outb(i,BASE); 
+		outb(i,BASE);
 		wmb();
 		ssleep(1);
 		printk(KERN_INFO 
-		       "par: device opened,  BASE=0x%x,buff=%d \n", 
+		       "BASE=0x%x,buff=%d \n", 
 		       i, (unsigned int) BASE);
+
 		
 		data ^= 0xff;
 
 		if(i == 0)
 			break;
 	}
+	
+	data = inb(BASE+1);
+	rmb();
+	printk(KERN_INFO "status reg = %x\n", data);
+	
+	data = inb(BASE+2);
+	rmb();
+	printk(KERN_INFO "control reg = %x\n",data);
+	
 	
 	return 0;
 }
@@ -92,6 +102,48 @@ static struct file_operations par_ops = {
 	.read = par_read,
 	.write = par_write
 };
+
+
+
+static irqreturn_t par_isr(int irq, void *dev_id)
+{
+	printk(KERN_INFO "---@@@@@@@@@@@ISR called@@@@@@@@@@@---\n");
+
+	return IRQ_HANDLED;
+
+}
+
+static u32 kernelprobe(void)
+{
+	int count = 0;
+	u32 irq = 0;
+	do {
+		unsigned long mask;
+
+		mask = probe_irq_on();
+		outb_p(0x10,pard.base+2); /* enable reporting */
+		outb_p(0x00,pard.base);   /* clear the bit */
+		outb_p(0xFF,pard.base);   /* set the bit: interrupt! */
+		outb_p(0x00,pard.base+2); /* disable reporting */
+		udelay(5);  /* give it some time */
+		irq = probe_irq_off(mask);
+
+		if (irq == 0) { /* none of them? */
+			printk(KERN_INFO "short: no irq reported by probe\n");
+			irq = -1;
+		}
+		/*
+		 * if more than one line has been activated, the result is
+		 * negative. We should service the interrupt (no need for lpt port)
+		 * and loop over again. Loop at most five times, then give up
+		 */
+	} while (irq < 0 && count++ < 5);
+	if (irq < 0)
+		printk("short: probe failed %i times, giving up\n", count);
+	
+	return irq;
+}
+
 
 static int par_register(void)
 {
@@ -182,7 +234,7 @@ static struct pnp_driver par_pnp_driver = {
 int __init par_init(void)
 {
 	int ret;
-//	unsigned int trail[] = { 
+
 
 	printk(KERN_INFO "par: parlell port demo\n");
 
@@ -204,17 +256,20 @@ int __init par_init(void)
 		goto error0;
 	}
 	
-	ret = request_irq(pard.irq, par_isr ,IRQF_SHARED, "par", NULL); 
 	
-	if( ret ) {
-		printk("-----------------------------%d\n",ret);
+
+	ret = request_irq(pard.irq, par_isr , 0, "par", NULL); 
+	
+	if( ret < 0 ) {
+		
 		goto error1;
-	}
+		printk(KERN_INFO "request_irq() failed return code %d\n",ret);
+	} 
 	
 	return ret;
 
 
-  error1:
+error1:
 	
 	cdev_del(&par_dev);
 
@@ -222,11 +277,10 @@ int __init par_init(void)
 	
 	release_region(BASE, NR_COUNT);
 
-  error0:
+error0:
+
 	pnp_unregister_driver(&par_pnp_driver);
 
-	free_irq(pard.irq, NULL);
-	
 	return ret;
 }
 
