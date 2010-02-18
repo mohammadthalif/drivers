@@ -4,6 +4,7 @@
 struct list {
 	int count;
 	struct list *next;
+	struct list *prev;
 };
 
 
