@@ -1,5 +1,5 @@
 
-SUBDIRS = common  i2c  input  tasklet  timer jiffies
+SUBDIRS = common  i2c  input  tasklet  timer jiffies mynet
 
 subdirs: clean 
 	for dir in $(SUBDIRS); do \
